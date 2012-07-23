@@ -4,6 +4,7 @@
 package main
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"flag"
 	"fmt"
@@ -29,8 +30,9 @@ var (
 	DEBUG    = flag.Bool("debug", false, "debug mode")
 	username = flag.String("username", "", "sugarsync email/user name")
 	password = flag.String("password", "", "sugarsync password")
+	action   = flag.String("action", "upload", "upload|list")
 	//file     = flag.String("file", "", "file to upload")
-	dest = flag.String("dest", "mb", "destination folder (or 'mb' for magic briefcase)")
+	dest = flag.String("dest", "", "destination folder (or 'mb' for magic briefcase, 'wa' for web archive, etc)")
 )
 
 type TransmitFiles []string
@@ -56,19 +58,19 @@ type AuthorizationResponse struct {
 }
 
 type UserInfo struct {
-	Username         string `xml:"username"`
-	Nickname         string `xml:"nickname"`
-	Workspaces       string `xml:"workspaces"`
-	SyncFolders      string `xml:"syncfolders"`
-	Deleted          string `xml:"deleted"`
-	MagicBriefcase   string `xml:"magicBriefcase"`
-	WebArchive       string `xml:"webArchive"`
-	MobilePhotos     string `xml:"mobilePhotos"`
-	ReceivedShares   string `xml:"receivedShares"`
-	Contacts         string `xml:"contacts"`
-	Albums           string `xml:"albums"`
-	RecentActivities string `xml:"recentActivities"`
-	PublicLinks      string `xml:"publicLinks"`
+	Username         string `xml:"username" json:"username"`
+	Nickname         string `xml:"nickname" json:"nickname"`
+	Workspaces       string `xml:"workspaces" json:"workspaces"`
+	SyncFolders      string `xml:"syncfolders" json:"syncfolders"`
+	Deleted          string `xml:"deleted" json:"deleted"`
+	MagicBriefcase   string `xml:"magicBriefcase" json:"magicBriefcase"`
+	WebArchive       string `xml:"webArchive" json:"webArchive"`
+	MobilePhotos     string `xml:"mobilePhotos" json:"mobilePhotos"`
+	ReceivedShares   string `xml:"receivedShares" json:"receivedShares"`
+	Contacts         string `xml:"contacts" json:"contacts"`
+	Albums           string `xml:"albums" json:"albums"`
+	RecentActivities string `xml:"recentActivities" json:"recentActivities"`
+	PublicLinks      string `xml:"publicLinks" json:"publicLinks"`
 }
 
 func main() {
@@ -76,6 +78,22 @@ func main() {
 
 	if *username == "" || *password == "" {
 		panic("Username and password must be set (-h for more details)")
+	}
+
+	switch *action {
+	case "upload":
+		{
+			if transmitFiles == nil || len(transmitFiles) < 1 {
+				panic("Files must be specified in upload mode (-h for more details)")
+			}
+		}
+	case "list":
+		{
+		}
+	default:
+		{
+			panic("Invalid action (-h for more details)")
+		}
 	}
 
 	r := refresh(*username, *password)
@@ -99,6 +117,14 @@ func main() {
 			}
 			myDest = ui.MagicBriefcase
 		}
+	case "wa":
+		{
+			ui := getUserInfo(a, ua)
+			if *DEBUG {
+				fmt.Println("web archive = " + ui.WebArchive)
+			}
+			myDest = ui.WebArchive
+		}
 	default:
 		{
 			myDest = *dest
@@ -108,11 +134,33 @@ func main() {
 		}
 	}
 
-	// Post new file, get file info first
-	for i := 0; i < len(transmitFiles); i++ {
-		fl := getNewFileLocation(a, myDest, filepath.Base(transmitFiles[i]))
-		fmt.Println("Uploading to " + fl)
-		uploadFile(a, fl, transmitFiles[i])
+	switch *action {
+	case "list":
+		{
+			if *DEBUG {
+				fmt.Printf("myDest = '" + myDest + "'\n")
+			}
+			if myDest == "" || len(myDest) < 1 {
+				ui := getUserInfo(a, ua)
+				fmt.Printf("User information:")
+				m, err := json.MarshalIndent(ui, " ", "  ")
+				if err != nil {
+					panic(err)
+				} else {
+					fmt.Print(string(m))
+				}
+				return
+			}
+		}
+	case "upload":
+		{
+			// Post new file, get file info first
+			for i := 0; i < len(transmitFiles); i++ {
+				fl := getNewFileLocation(a, myDest, filepath.Base(transmitFiles[i]))
+				fmt.Println("Uploading to " + fl)
+				uploadFile(a, fl, transmitFiles[i])
+			}
+		}
 	}
 }
 
