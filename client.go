@@ -157,7 +157,7 @@ func main() {
 			// Post new file, get file info first
 			for i := 0; i < len(transmitFiles); i++ {
 				fl := getNewFileLocation(a, myDest, filepath.Base(transmitFiles[i]))
-				fmt.Println("Uploading to " + fl)
+				fmt.Println("Uploading " + transmitFiles[i] + " to " + fl)
 				uploadFile(a, fl, transmitFiles[i])
 			}
 		}
