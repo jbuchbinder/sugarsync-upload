@@ -1,5 +1,5 @@
-// SUGARSYNC CLIENT
-// https://github.com/jbuchbinder/sugarsync-linux
+// SUGARSYNC UPLOAD
+// https://github.com/jbuchbinder/sugarsync-upload
 
 package main
 

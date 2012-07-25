@@ -2,7 +2,7 @@ SUGARSYNC UPLOADER
 ==================
 
 * https://github.com/jbuchbinder/sugarsync-uploader
-* Twitter: @jbuchbinder
+* Twitter: [@jbuchbinder](https://twitter.com/jbuchbinder)
 
 OVERVIEW
 --------
