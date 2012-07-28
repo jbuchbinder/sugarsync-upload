@@ -12,6 +12,21 @@ Sugarsync folders.
 
 Use '-h' with the binary to get an explanation of syntax.
 
+USAGE
+-----
+
+```
+Usage of sugarsync-upload:
+  -action="upload": upload|list
+  -debug=false: debug mode
+  -dest="": destination folder (or 'mb' for magic briefcase, 'wa' for web archive, etc)
+  -password="": sugarsync password
+  -username="": sugarsync email/user name
+```
+
+Files to be uploaded are passed as additional parameters.
+
+
 COMPILING
 ---------
 

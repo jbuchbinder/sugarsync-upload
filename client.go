@@ -31,26 +31,10 @@ var (
 	username = flag.String("username", "", "sugarsync email/user name")
 	password = flag.String("password", "", "sugarsync password")
 	action   = flag.String("action", "upload", "upload|list")
-	//file     = flag.String("file", "", "file to upload")
-	dest = flag.String("dest", "", "destination folder (or 'mb' for magic briefcase, 'wa' for web archive, etc)")
+	dest     = flag.String("dest", "", "destination folder (or 'mb' for magic briefcase, 'wa' for web archive, etc)")
 )
 
-type TransmitFiles []string
-
-func (t *TransmitFiles) String() string {
-	return fmt.Sprint(*t)
-}
-
-func (t *TransmitFiles) Set(value string) error {
-	*t = append(*t, value)
-	return nil
-}
-
-var transmitFiles TransmitFiles
-
-func init() {
-	flag.Var(&transmitFiles, "file", "files to upload, can be specified multiple times")
-}
+var transmitFiles []string
 
 type AuthorizationResponse struct {
 	Expiration string `xml:"expiration"`
@@ -75,6 +59,7 @@ type UserInfo struct {
 
 func main() {
 	flag.Parse()
+	transmitFiles = flag.Args()
 
 	if *username == "" || *password == "" {
 		panic("Username and password must be set (-h for more details)")
