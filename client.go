@@ -4,7 +4,6 @@
 package main
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"flag"
 	"fmt"
@@ -39,6 +38,28 @@ var transmitFiles []string
 type AuthorizationResponse struct {
 	Expiration string `xml:"expiration"`
 	User       string `xml:"user"`
+}
+
+type CollectionContents struct {
+	Collection []SugarsyncCollection `xml:"collection"`
+	File       []SugarsyncFile       `xml:"file"`
+}
+
+type SugarsyncCollection struct {
+	Type        string `xml:"type,attr"`
+	DisplayName string `xml:"displayName"`
+	Ref         string `xml:"ref"`
+	Contents    string `xml:"contents"`
+}
+
+type SugarsyncFile struct {
+	DisplayName     string `xml:"displayName"`
+	Ref             string `xml:"ref"`
+	Size            int64  `xml:"size"`
+	LastModified    string `xml:"lastModified"`
+	MediaType       string `xml:"mediaType"`
+	PresentOnServer bool   `xml:"presentOnServer"`
+	FileData        string `xml:"fileData"`
 }
 
 type UserInfo struct {
@@ -125,16 +146,12 @@ func main() {
 			if *DEBUG {
 				fmt.Printf("myDest = '" + myDest + "'\n")
 			}
-			if myDest == "" || len(myDest) < 1 {
-				ui := getUserInfo(a, ua)
-				fmt.Printf("User information:")
-				m, err := json.MarshalIndent(ui, " ", "  ")
-				if err != nil {
-					panic(err)
-				} else {
-					fmt.Print(string(m))
-				}
-				return
+			i := getLocationInfo(a, myDest)
+			for j := 0; j < len(i.Collection); j++ {
+				fmt.Printf("DIR: %s : %s\n", i.Collection[j].DisplayName, i.Collection[j].Ref)
+			}
+			for j := 0; j < len(i.File); j++ {
+				fmt.Printf("FILE: %s (%d bytes) : %s\n", i.File[j].DisplayName, i.File[j].Size, i.File[j].Ref)
 			}
 		}
 	case "upload":
@@ -304,6 +321,43 @@ func getUserInfo(authToken string, userResource string) UserInfo {
 		fmt.Printf(err.Error())
 	}
 	var obj UserInfo
+	err = xml.Unmarshal(body, &obj)
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
+
+	return obj
+}
+
+func getLocationInfo(authToken string, resource string) CollectionContents {
+	client := http.Client{}
+	req, _ := http.NewRequest("GET", resource+"/contents", nil)
+	req.Header.Set("Authorization", authToken)
+
+	if *DEBUG {
+		dump, _ := httputil.DumpRequestOut(req, true)
+		fmt.Println(string(dump))
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println("ERROR: ")
+		fmt.Println(err)
+	}
+	defer res.Body.Close()
+
+	if *DEBUG {
+		dump, _ := httputil.DumpResponse(res, true)
+		fmt.Println(string(dump))
+	}
+
+	// Extract user resource from body
+	//io.Copy(os.Stderr, res.Body)
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
+	var obj CollectionContents
 	err = xml.Unmarshal(body, &obj)
 	if err != nil {
 		fmt.Printf(err.Error())
