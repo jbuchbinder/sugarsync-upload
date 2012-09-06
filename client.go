@@ -26,11 +26,12 @@ const (
 )
 
 var (
-	DEBUG    = flag.Bool("debug", false, "debug mode")
-	username = flag.String("username", "", "sugarsync email/user name")
-	password = flag.String("password", "", "sugarsync password")
-	action   = flag.String("action", "upload", "upload|list")
-	dest     = flag.String("dest", "", "destination folder (or 'mb' for magic briefcase, 'wa' for web archive, etc)")
+	DEBUG      = flag.Bool("debug", false, "debug mode")
+	username   = flag.String("username", "", "sugarsync email/user name")
+	password   = flag.String("password", "", "sugarsync password")
+	action     = flag.String("action", "upload", "upload|list|mkdir")
+	dest       = flag.String("dest", "", "destination folder (or 'mb' for magic briefcase, 'wa' for web archive, etc)")
+	folderName = flag.String("folderName", "", "folder name (for new folder creation)")
 )
 
 var transmitFiles []string
@@ -43,6 +44,11 @@ type AuthorizationResponse struct {
 type CollectionContents struct {
 	Collection []SugarsyncCollection `xml:"collection"`
 	File       []SugarsyncFile       `xml:"file"`
+}
+
+type Folder struct {
+	XMLName     xml.Name `xml:"folder"`
+	DisplayName string   `xml:"displayName"`
 }
 
 type SugarsyncCollection struct {
@@ -95,6 +101,12 @@ func main() {
 		}
 	case "list":
 		{
+		}
+	case "mkdir":
+		{
+			if *folderName == "" {
+				panic("folderName must be specified for mkdir")
+			}
 		}
 	default:
 		{
@@ -162,6 +174,11 @@ func main() {
 				fmt.Println("Uploading " + transmitFiles[i] + " to " + fl)
 				uploadFile(a, fl, transmitFiles[i])
 			}
+		}
+	case "mkdir":
+		{
+			folder := createNewFolder(a, myDest, *folderName)
+			fmt.Println("New folder URL : " + folder)
 		}
 	}
 }
@@ -256,6 +273,36 @@ func refresh(user, pass string) string {
 		fmt.Println(err)
 		fmt.Println(body)
 	}
+	return res.Header.Get("Location")
+}
+
+func createNewFolder(authToken string, folder string, folderName string) string {
+	client := http.Client{}
+	rObj := Folder{DisplayName: folderName}
+	payload, err := xml.Marshal(rObj)
+	if *DEBUG {
+		fmt.Println("Posting to " + folder + " with:\n" + string(payload))
+	}
+	req, err := http.NewRequest("POST", folder, strings.NewReader(string(payload)))
+	req.Header.Set("Authorization", authToken)
+
+	if *DEBUG {
+		dump, _ := httputil.DumpRequestOut(req, true)
+		fmt.Println(string(dump))
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println("ERROR: ")
+		fmt.Println(err)
+	}
+	defer res.Body.Close()
+
+	if *DEBUG {
+		dump, _ := httputil.DumpResponse(res, true)
+		fmt.Println(string(dump))
+	}
+
 	return res.Header.Get("Location")
 }
 

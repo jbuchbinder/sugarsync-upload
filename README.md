@@ -17,9 +17,10 @@ USAGE
 
 ```
 Usage of sugarsync-upload:
-  -action="upload": upload|list
+  -action="upload": upload|list|mkdir
   -debug=false: debug mode
   -dest="": destination folder (or 'mb' for magic briefcase, 'wa' for web archive, etc)
+  -folderName="": folder name (for new folder creation)
   -password="": sugarsync password
   -username="": sugarsync email/user name
 ```
