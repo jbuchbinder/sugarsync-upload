@@ -27,6 +27,11 @@ Usage of sugarsync-upload:
 
 Files to be uploaded are passed as additional parameters.
 
+Uploading:
+```
+sugarsync-upload -username=user@my.net -password=pwd -action=upload -dest=wa FILE1 FILE2 FILE3
+```
+
 
 COMPILING
 ---------
