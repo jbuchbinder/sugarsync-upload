@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"mime"
 	"net/http"
 	"net/http/httputil"
 	"os"
@@ -306,12 +307,24 @@ func createNewFolder(authToken string, folder string, folderName string) string 
 	return res.Header.Get("Location")
 }
 
+func getFileTypeForFile(fileName string) string {
+	ext := filepath.Ext(fileName)
+	if ext == "" {
+		return "application/octet-string"
+	}
+	mimeType := mime.TypeByExtension(ext)
+	if mimeType == "" {
+		return "application/octet-string"
+	}
+	return mimeType
+}
+
 func getNewFileLocation(authToken string, folder string, fileName string) string {
 	client := http.Client{}
 	payload := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 		"<file>\n" +
 		"<displayName>" + fileName + "</displayName>\n" +
-		"<mediaType>application/octet-stream</mediaType>\n" +
+		"<mediaType>" + getFileTypeForFile(fileName) + "</mediaType>\n" +
 		"</file>\n"
 	if *DEBUG {
 		fmt.Println("Posting to " + REFRESH_URL + " with:\n" + payload)
