@@ -40,3 +40,15 @@ COMPILING
 
 It requires a copy of Go 1.0.x.
 
+CHANGELOG
+---------
+
+### 0.3.0
+
+* Added MIME autodetection based on file extension. This should allow
+  picture and music uploads to work properly with Sugarsync's service.
+
+### 0.2.0
+
+* Legacy version
+
