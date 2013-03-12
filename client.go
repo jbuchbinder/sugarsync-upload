@@ -37,6 +37,15 @@ var (
 
 var transmitFiles []string
 
+type AppAuthorization struct {
+	XMLName          xml.Name `xml:"appAuthorization"`
+	Username         string   `xml:"username"`
+	Password         string   `xml:"password"`
+	Application      string   `xml:"application"`
+	AccessKeyId      string   `xml:"accessKeyId"`
+	PrivateAccessKey string   `xml:"privateAccessKey"`
+}
+
 type AuthorizationResponse struct {
 	Expiration string `xml:"expiration"`
 	User       string `xml:"user"`
@@ -231,16 +240,15 @@ func auth(refreshToken string) (authToken string, userResource string) {
 
 func refresh(user, pass string) string {
 	client := http.Client{}
-	payload := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-		"<appAuthorization>\n" +
-		"<username>" + user + "</username>\n" +
-		"<password>" + pass + "</password>\n" +
-		"<application>" + APP_ID + "</application>\n" +
-		"<accessKeyId>" + ACCESS_KEY_ID + "</accessKeyId>\n" +
-		"<privateAccessKey>" + PRIVATE_ACCESS_KEY + "</privateAccessKey>\n" +
-		"</appAuthorization>\n"
+	rObj := AppAuthorization{
+		Username:         user,
+		Password:         pass,
+		Application:      APP_ID,
+		AccessKeyId:      ACCESS_KEY_ID,
+		PrivateAccessKey: PRIVATE_ACCESS_KEY}
+	payload, err := xml.Marshal(rObj)
 	if *DEBUG {
-		fmt.Println("Posting to " + REFRESH_URL + " with:\n" + payload)
+		fmt.Println("Posting to " + REFRESH_URL + " with:\n" + string(payload))
 	}
 	req, err := http.NewRequest("POST", REFRESH_URL, strings.NewReader(string(payload)))
 	if err != nil {
