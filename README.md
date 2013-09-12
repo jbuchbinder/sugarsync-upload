@@ -1,19 +1,18 @@
-SUGARSYNC UPLOADER
-==================
+# SUGARSYNC UPLOADER
 
-* https://github.com/jbuchbinder/sugarsync-uploader
+[![Build Status](https://secure.travis-ci.org/jbuchbinder/sugarsync-upload.png)](http://travis-ci.org/jbuchbinder/sugarsync-upload)
+
+* https://github.com/jbuchbinder/sugarsync-upload
 * Twitter: [@jbuchbinder](https://twitter.com/jbuchbinder)
 
-OVERVIEW
---------
+## OVERVIEW
 
 This client allows multiple files to be uploaded to arbitrary
 Sugarsync folders.
 
 Use '-h' with the binary to get an explanation of syntax.
 
-USAGE
------
+## USAGE
 
 ```
 Usage of sugarsync-upload:
@@ -33,15 +32,13 @@ sugarsync-upload -username=user@my.net -password=pwd -action=upload -dest=wa FIL
 ```
 
 
-COMPILING
----------
+## COMPILING
 
 `go build`
 
 It requires a copy of Go 1.0.x.
 
-CHANGELOG
----------
+## CHANGELOG
 
 ### 0.3.0
 
