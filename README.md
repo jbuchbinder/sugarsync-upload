@@ -2,6 +2,8 @@
 
 [![Build Status](https://secure.travis-ci.org/jbuchbinder/sugarsync-upload.png)](http://travis-ci.org/jbuchbinder/sugarsync-upload)
 
+[![Gobuild Download](http://gobuild.io/badge/github.com/jbuchbinder/sugarsync-upload/downloads.svg)](http://gobuild.io/github.com/jbuchbinder/sugarsync-upload)
+
 * https://github.com/jbuchbinder/sugarsync-upload
 * Twitter: [@jbuchbinder](https://twitter.com/jbuchbinder)
 
